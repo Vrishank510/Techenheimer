@@ -1,0 +1,126 @@
+require("dotenv").config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const session = require('express-session')
+const passport = require('passport')
+const passportLocalMongoose = require('passport-local-mongoose')
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const findOrCreate = require('mongoose-findorcreate')
+
+
+const app = express();
+
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    //cookie: { secure: true }
+  }))
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+
+
+// mongoose.connect('mongodb://127.0.0.1:27017/FresherDB');
+mongoose.connect(process.env.MONGO_URI);
+const studentSchema = new mongoose.Schema({
+    name: String,
+    rollno: String,
+    points: Number,
+    email: String,
+    Position: Number,
+    googleId: String
+})
+
+studentSchema.plugin(passportLocalMongoose)
+studentSchema.plugin(findOrCreate);
+
+const Student = mongoose.model("Student",studentSchema);
+
+passport.use(Student.createStrategy());
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+  });
+  
+  passport.deserializeUser(function(user, done) {
+    done(null, user);
+  });
+
+const url = process.env.DEV ? "http://localhost:3000/" : "https://techenheimer.eastus.cloudapp.com";
+passport.use(new GoogleStrategy({
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: `${url}/auth/google/secrets`,
+    userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    Student.findOrCreate({ googleId: profile.id }, function (err, user) {
+        console.log(profile);
+        Student.findOneAndUpdate({googleId: profile.id},{name:profile.displayName}).then((student)=>{
+            console.log(profile.id);
+        })
+      return cb(err, user);
+    });
+  }
+));
+
+app.get("/admin", (req,res)=>{
+    if (req.isAuthenticated()){
+        console.log(req.user);
+        Student.find().sort({points: -1}).then((student)=>{
+            Student.findOne({_id:req.user._id}).then((stud)=>{
+                console.log(stud);
+                res.render("index.ejs",{
+                    student:student,
+                    userId: req.user._id,
+                    currentUser: stud
+                })
+            })
+            
+        })
+    } else{
+        res.redirect("/login")
+    }
+    
+    
+})
+
+app.get("/login", (req,res)=>{
+    res.render('login.ejs')
+})
+
+app.get("/register", (req,res)=>{
+    res.render('register.ejs')
+})
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile','email'] }));
+
+app.get('/auth/google/secrets', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  function(req, res) {
+    
+    res.redirect('/admin');
+  });
+
+app.post("/admin", (req,res)=>{
+    const user = req.body.userButton;
+    Student.updateOne({_id:user},{$inc: {points: 1}}).then();
+    res.redirect("/admin");
+})
+
+app.post("/dec", (req,res)=>{
+    const user = req.body.decButton;
+    Student.updateOne({_id:user},{$inc: {points: -1}}).then();
+    res.redirect("/admin");
+})
+
+app.listen(3000, ()=>{
+    console.log("listening");
+})
