@@ -77,7 +77,7 @@ app.get("/admin", (req,res)=>{
         
         Student.find().sort({points: -1}).then((student)=>{
             Student.findOne({_id:req.user._id}).then((stud)=>{
-                console.log(stud);
+                console.log(student);
                 res.render("index.ejs",{
                     student:student,
                     userId: req.user._id,
