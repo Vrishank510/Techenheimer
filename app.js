@@ -27,6 +27,7 @@ app.use(session({
 
 
 // mongoose.connect('mongodb://127.0.0.1:27017/FresherDB');
+console.log(process.env.MONGO_URI)
 mongoose.connect(process.env.MONGO_URI);
 const studentSchema = new mongoose.Schema({
     name: String,
@@ -52,7 +53,7 @@ passport.serializeUser(function(user, done) {
     done(null, user);
   });
 
-const url = process.env.DEV ? "http://localhost:3000/" : "https://techenheimer.eastus.cloudapp.com";
+const url = process.env.DEV ? "http://localhost:3000" : "https://techenheimer.eastus.cloudapp.azure.com";
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
