@@ -37,7 +37,7 @@
           
           <tr>
             <th scope="row"><%=i+1 %></th>
-            <td><%=student[i].name %></td>
+            <td><%=student[i].username %></td>
             
             
             <td><%=student[i].points %></td>
@@ -74,7 +74,7 @@
               
               <tr>
                 <th scope="row"><%=i+1 %></th>
-                <td><%=student[i].name %></td>
+                <td><%=student[i].username %></td>
                 
                 
                 <td><%=student[i].points %></td>
@@ -88,7 +88,7 @@
           
           <% } %>
           <% if(userId != '652385274772a23cf1587a3a'){ %>
-          <h1 style="margin-top: 30px; font-weight: bold;"><%=currentUser.name %></h1>
+          <h1 style="margin-top: 30px; font-weight: bold;"><%=currentUser.username %></h1>
           <h2>Points: <%=currentUser.points %></h2>
           <% } %>
         </div>

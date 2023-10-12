@@ -30,7 +30,7 @@ app.use(session({
 console.log(process.env.MONGO_URI)
 mongoose.connect(process.env.MONGO_URI);
 const studentSchema = new mongoose.Schema({
-    name: String,
+    username: String,
     rollno: String,
     points: Number,
     email: String,
@@ -63,7 +63,7 @@ passport.use(new GoogleStrategy({
   function(accessToken, refreshToken, profile, cb) {
     Student.findOrCreate({ googleId: profile.id }, function (err, user) {
         console.log(profile);
-        Student.findOneAndUpdate({googleId: profile.id},{name:profile.displayName}).then((student)=>{
+        Student.findOneAndUpdate({googleId: profile.id},{username:profile.displayName}).then((student)=>{
             console.log(profile.id);
         })
       return cb(err, user);
@@ -77,7 +77,7 @@ app.get("/admin", (req,res)=>{
         
         Student.find().sort({points: -1}).then((student)=>{
             Student.findOne({_id:req.user._id}).then((stud)=>{
-                console.log(student[0].name);
+                console.log(student[0].username);
                 res.render("index.ejs",{
                     student:student,
                     userId: req.user._id,
