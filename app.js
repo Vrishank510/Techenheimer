@@ -63,7 +63,7 @@ passport.use(new GoogleStrategy({
   function(accessToken, refreshToken, profile, cb) {
     Student.findOrCreate({ googleId: profile.id }, function (err, user) {
         console.log(profile);
-        Student.findOneAndUpdate({googleId: profile.id},{username:profile.displayName}).then((student)=>{
+        Student.findOneAndUpdate({googleId: profile.id},{"$set":{"username":profile.displayName,"points":0}}).then((student)=>{
             console.log(profile.id);
         })
       return cb(err, user);
