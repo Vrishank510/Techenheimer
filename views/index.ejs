@@ -82,7 +82,20 @@
               
               
               <% } %>
+              <% } else{
+                    <% for(var i = 0;i<student.length;i++){ %>
+              
+              <tr>
+                <th scope="row"><%=i+1 %></th>
+                <td><%=student[i].username %></td>
+                
+                
+                <td><%=student[i].points %></td>
+              </tr>
+              
+              
               <% } %>
+              } %>
             </tbody>
           </table>
           
