@@ -72,8 +72,9 @@ passport.use(new GoogleStrategy({
 ));
 
 app.get("/admin", (req,res)=>{
+    console.log("hi");
     if (req.isAuthenticated()){
-        console.log(req.user);
+        
         Student.find().sort({points: -1}).then((student)=>{
             Student.findOne({_id:req.user._id}).then((stud)=>{
                 console.log(stud);
